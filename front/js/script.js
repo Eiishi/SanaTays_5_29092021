@@ -27,10 +27,18 @@ setTimeout(() => {
     let productName = document.createElement("h3");
     let productDescription = document.createElement("p");
 
+
+    // récupération des ID et placement dans l'URL page Produit
+    //----------------------------------------------------
+    const url = new URL('http://127.0.0.1:5500/front/product.html?id=42');
+    const params = new URLSearchParams(url.search);
+    params.set('id', data[i]._id);
+    productId = params.get('id');
     
+
     // attribution des classes et attributs
     //----------------------------------------------------
-    link.setAttribute("href", "./product.html?id=42");
+    link.setAttribute("href", "./product.html?id=" + productId);
     img.setAttribute("src", data[i].imageUrl);
     img.setAttribute("alt", data[i].altTxt);
     productName.classList.add("productName");
@@ -50,6 +58,7 @@ setTimeout(() => {
     //----------------------------------------------------
     productName.textContent = data[i].name;
     productDescription.textContent = data[i].description;
+
     
     }
 }, 500);
