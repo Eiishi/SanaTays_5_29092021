@@ -3,12 +3,6 @@
 const data = JSON.parse(localStorage.getItem("data"));
 let cart = JSON.parse(localStorage.getItem("cart"));
 
-// Définition de la fonction somme
-//----------------------------------------------------
-const sum = () => {
-
-}
-
 
 // MANIPULATIONS DU DOM
 // itération sur chaque élément du panier
@@ -17,25 +11,28 @@ const sum = () => {
 
 for (let i = 0; i < cart.length; i++) {
 
-
+    
     // récupération de l'index du produit dans data
     //----------------------------------------------------
-
+    
     for (j = 0; j < data.length; j++) {
+
         if (cart[i][0] === data[j]._id) {
-        
-        // article
-        // ----------------------------------------------------
-        let article = document.createElement("article");
-        article.classList.add("cart__item");
-        article.setAttribute("data-id", cart[i][0]);
-        document.getElementById("cart__items").appendChild(article);
-        
-        // div item__img
-        //----------------------------------------------------
-        let cartItemImg = document.createElement("div");
-        cartItemImg.classList.add("cart__item__img");
-        article.appendChild(cartItemImg);
+                      
+            // article
+            // ----------------------------------------------------
+            let article = document.createElement("article");
+            article.classList.add("cart__item");
+            article.setAttribute("data-id", cart[i][0]);
+            article.setAttribute("data-color", cart[i][2]);
+            article.setAttribute("data-price", data[j].price);
+            document.getElementById("cart__items").appendChild(article);
+            
+            // div item__img
+            //----------------------------------------------------
+            let cartItemImg = document.createElement("div");
+            cartItemImg.classList.add("cart__item__img");
+            article.appendChild(cartItemImg);
         
             // img
             //----------------------------------------------------
@@ -56,16 +53,20 @@ for (let i = 0; i < cart.length; i++) {
             cartItemContentTitlePrice.classList.add("cart__item__content__titlePrice");
             cartItemContent.appendChild(cartItemContentTitlePrice);
             
-            // h2 nom du produit
+            // Récupération de la couleur
+            //----------------------------------------------------
+            let dataColor = data[j].colors[article.dataset.color-1];
+
+            // h2 nom & couleur du produit
             //----------------------------------------------------
             let h2 = document.createElement("h2");
-            h2.textContent = data[j].name;
+            h2.textContent = data[j].name + " (" + dataColor + ")";
             cartItemContentTitlePrice.appendChild(h2);
             
             // p prix du produit
             //----------------------------------------------------
             let price = document.createElement("p");
-            price.textContent = data[j].price + " €";
+            price.textContent = article.dataset.price + " €";
             cartItemContentTitlePrice.appendChild(price);
             
             // div item__content__settings
@@ -114,34 +115,46 @@ for (let i = 0; i < cart.length; i++) {
             let totalQuantity = document.getElementById("totalQuantity");
             let totalPrice = document.getElementById("totalPrice");
             if (cart[i-1]) {
-                totalQuantity.textContent = cart[i][1] + cart[i-1][1];
-                totalPrice.textContent = Number(totalPrice.textContent) + (data[j].price)*cart[i][1];
+                totalQuantity.textContent = Number(totalQuantity.textContent) + Number(itemQuantity.value);
+                totalPrice.textContent = Number(totalPrice.textContent) + (article.dataset.price)*Number(itemQuantity.value);
             } else {
-                totalQuantity.textContent = cart[i][1];
-                totalPrice.textContent = (data[j].price)*cart[i][1];
+                totalQuantity.textContent = Number(itemQuantity.value);
+                totalPrice.textContent = (article.dataset.price)*Number(itemQuantity.value);
             }
-
 
             
             // Ajout de la modification pour la quantité
             //----------------------------------------------------
             itemQuantity.addEventListener("change", () => {
+                totalQuantity.textContent = Number(totalQuantity.textContent) + Number(itemQuantity.value) - cart[i][1];
+                totalPrice.textContent = Number(totalPrice.textContent) + article.dataset.price*(Number(itemQuantity.value) - cart[i][1]);
                 cart[i][1] = Number(itemQuantity.value);
-                console.log(cart);
                 localStorage.cart = JSON.stringify(cart);
             });
             
             
             // Suppression d'un produit du panier
             //----------------------------------------------------
+
             cartItemContentSettingsDelete.addEventListener("click", () => {
-                document.getElementById("cart__items").removeChild(article);
-                delete cart[i];
-                cart = cart.filter((a) => a);
-                localStorage.cart = JSON.stringify(cart);
+
+                for (let k = 0; k < cart.length; k++) {
+
+                    if (cart[k][0] == article.dataset.id && cart[k][2] == article.dataset.color) {
+                        delete cart[k];
+                        cart = cart.filter((a) => a);
+                        document.getElementById("cart__items").removeChild(article);
+                        localStorage.cart = JSON.stringify(cart);
+
+                        totalQuantity.textContent = Number(totalQuantity.textContent) - itemQuantity.value;
+                        totalPrice.textContent = Number(totalPrice.textContent) - article.dataset.price*itemQuantity.value;
+
+                    }
+                    
+                }
+            
             });
         }
     }
 }
-    
-    
+
